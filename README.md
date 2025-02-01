@@ -20,13 +20,13 @@ This project is a Kanban board application with JWT authentication. Users can se
 
 ## Getting Started:
 
-1.Clone the repository:
+1. Clone the repository:
 ```
 git clone <repository-url>
 
 cd <project-directory>
 ```
-2.Create a .env file with the following environment variables:
+2. Create a .env file with the following environment variables:
 ```
 DATABASE_USERNAME=<your-database-username>
 
@@ -34,7 +34,7 @@ DATABASE_PASSWORD=<your-database-password>
 
 JWT_SECRET_KEY=<your-secret-key>
 ```
-3.Complete the authentication setup:
+3. Complete the authentication setup:
 
 -Implement JWT authentication in ```server/src/middleware/auth.ts.```
 
@@ -46,11 +46,11 @@ JWT_SECRET_KEY=<your-secret-key>
 
 -Deploy the app to Render using the Render Deployment Guide and PostgreSQL Guide.
 
-4.Deploy the app to Render:
+4. Deploy the app to Render:
 
 Follow the Render Deployment Guide for deploying the app.
 
-5.Use Insomnia for testing the API directly.
+5. Use Insomnia for testing the API directly.
 
 
 ## Tech Stack:
@@ -71,7 +71,7 @@ The application is deployed and access it here:
 
 If you'd like to contribute to this project, please fork the repository and create a pull request with your changes. 
 
-## License
+## License:
 
 This project is licensed under the MIT License.
 
