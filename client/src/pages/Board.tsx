@@ -1,18 +1,20 @@
 import { useEffect, useState, useLayoutEffect } from 'react';
-import { Link } from 'react-router-dom';
-
 import { retrieveTickets, deleteTicket } from '../api/ticketAPI';
+import { retrieveUsers } from '../api/userAPI';
 import ErrorPage from './ErrorPage';
 import Swimlane from '../components/Swimlane';
+import FilterSort, { FilterOptions } from '../components/FilterSort';
 import { TicketData } from '../interfaces/TicketData';
+import { UserData } from '../interfaces/UserData';
 import { ApiMessage } from '../interfaces/ApiMessage';
-
 import auth from '../utils/auth';
 
 const boardStates = ['Todo', 'In Progress', 'Done'];
 
 const Board = () => {
   const [tickets, setTickets] = useState<TicketData[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<TicketData[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
   const [error, setError] = useState(false);
   const [loginCheck, setLoginCheck] = useState(false);
 
@@ -22,25 +24,59 @@ const Board = () => {
     }
   };
 
-  const fetchTickets = async () => {
+  const fetchData = async () => {
     try {
-      const data = await retrieveTickets();
-      setTickets(data);
+      const [ticketsData, usersData] = await Promise.all([
+        retrieveTickets(),
+        retrieveUsers()
+      ]);
+      console.log('Fetched users:', usersData); // Debug log
+      setTickets(ticketsData);
+      setFilteredTickets(ticketsData);
+      setUsers(usersData);
     } catch (err) {
-      console.error('Failed to retrieve tickets:', err);
+      console.error('Failed to load data:', err);
       setError(true);
     }
   };
 
-  const deleteIndvTicket = async (ticketId: number) : Promise<ApiMessage> => {
+  const handleFilterChange = (filters: FilterOptions) => {
+    let filtered = [...tickets];
+
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(ticket => ticket.status === filters.status);
+    }
+
+    if (filters.assignedUser !== 'all') {
+      filtered = filtered.filter(ticket => ticket.assignedUser?.username === filters.assignedUser);
+    }
+
+    setFilteredTickets(filtered);
+  };
+
+  const handleSortChange = (sortOption: string) => {
+    const sorted = [...filteredTickets].sort((a, b) => {
+      switch (sortOption) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'assignee':
+          return (a.assignedUser?.username || '').localeCompare(b.assignedUser?.username || '');
+        default:
+          return 0;
+      }
+    });
+    setFilteredTickets(sorted);
+  };
+
+  const deleteIndvTicket = async (ticketId: number): Promise<ApiMessage> => {
     try {
       const data = await deleteTicket(ticketId);
-      fetchTickets();
+      fetchData();
       return data;
     } catch (err) {
       return Promise.reject(err);
     }
-  }
+  };
 
   useLayoutEffect(() => {
     checkLogin();
@@ -48,7 +84,7 @@ const Board = () => {
 
   useEffect(() => {
     if(loginCheck) {
-      fetchTickets();
+      fetchData();
     }
   }, [loginCheck]);
 
@@ -58,34 +94,32 @@ const Board = () => {
 
   return (
     <>
-    {
-      !loginCheck ? (
+      {!loginCheck ? (
         <div className='login-notice'>
-          <h1>
-            Login to create & view tickets
-          </h1>
+          <h1>Login to create & view tickets</h1>
         </div>  
       ) : (
-          <div className='board'>
-            <button type='button' id='create-ticket-link'>
-              <Link to='/create' >New Ticket</Link>
-            </button>
-            <div className='board-display'>
-              {boardStates.map((status) => {
-                const filteredTickets = tickets.filter(ticket => ticket.status === status);
-                return (
-                  <Swimlane 
-                    title={status} 
-                    key={status} 
-                    tickets={filteredTickets} 
-                    deleteTicket={deleteIndvTicket}
-                  />
-                );
-              })}
-            </div>
+        <div className='board'>
+          <FilterSort 
+            users={users}
+            onFilterChange={handleFilterChange}
+            onSortChange={handleSortChange}
+          />
+          <div className='board-display'>
+            {boardStates.map((status) => {
+              const statusTickets = filteredTickets.filter(ticket => ticket.status === status);
+              return (
+                <Swimlane 
+                  title={status} 
+                  key={status} 
+                  tickets={statusTickets} 
+                  deleteTicket={deleteIndvTicket}
+                />
+              );
+            })}
           </div>
-        )
-    }
+        </div>
+      )}
     </>
   );
 };

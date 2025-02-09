@@ -5,7 +5,7 @@ import Auth from '../utils/auth';
 const retrieveTickets = async () => {
   try {
     const response = await fetch(
-      '/api/tickets/',
+      `${import.meta.env.VITE_API_URL}/api/tickets/`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -16,20 +16,20 @@ const retrieveTickets = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      throw new Error('invalid API response, check network tab!');
+      throw new Error('invalid API response');
     }
 
     return data;
   } catch (err) {
-    console.log('Error from data retrieval: ', err);
+    console.error('Error from data retrieval:', err);
     return [];
   }
 };
 
-const retrieveTicket = async (id: number | null): Promise<TicketData> => {
+const retrieveTicket = async (id: number): Promise<TicketData> => {
   try {
     const response = await fetch(
-      `/api/tickets/${id}`,
+      `${import.meta.env.VITE_API_URL}/api/tickets/${id}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -41,46 +41,46 @@ const retrieveTicket = async (id: number | null): Promise<TicketData> => {
     const data = await response.json();
 
     if(!response.ok) {
-      throw new Error('Could not invalid API response, check network tab!');
+      throw new Error('Could not fetch ticket');
     }
     return data;
   } catch (err) {
-    console.log('Error from data retrieval: ', err);
-    return Promise.reject('Could not fetch singular ticket');
+    console.error('Error retrieving ticket:', err);
+    return Promise.reject('Could not fetch ticket');
   }
-}
+};
 
 const createTicket = async (body: TicketData) => {
   try {
     const response = await fetch(
-      '/api/tickets/', {
+      `${import.meta.env.VITE_API_URL}/api/tickets/`,
+      {
         method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${Auth.getToken()}`
-          },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${Auth.getToken()}`
+        },
         body: JSON.stringify(body)
       }
-
-    )
-    const data = response.json();
+    );
+    const data = await response.json();
 
     if(!response.ok) {
-      throw new Error('invalid API response, check network tab!');
+      throw new Error('Could not create ticket');
     }
 
     return data;
-
   } catch (err) {
-    console.log('Error from Ticket Creation: ', err);
+    console.error('Error creating ticket:', err);
     return Promise.reject('Could not create ticket');
   }
-}
+};
 
 const updateTicket = async (ticketId: number, body: TicketData): Promise<TicketData> => {
   try {
     const response = await fetch(
-      `/api/tickets/${ticketId}`, {
+      `${import.meta.env.VITE_API_URL}/api/tickets/${ticketId}`,
+      {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -88,43 +88,49 @@ const updateTicket = async (ticketId: number, body: TicketData): Promise<TicketD
         },
         body: JSON.stringify(body)
       }
-    )
+    );
     const data = await response.json();
 
     if(!response.ok) {
-      throw new Error('invalid API response, check network tab!');
+      throw new Error('Could not update ticket');
     }
 
     return data;
   } catch (err) {
-    console.error('Update did not work', err);
-    return Promise.reject('Update did not work');
+    console.error('Update failed:', err);
+    return Promise.reject('Update failed');
   }
 };
 
 const deleteTicket = async (ticketId: number): Promise<ApiMessage> => {
   try {
     const response = await fetch(
-      `/api/tickets/${ticketId}`, {
+      `${import.meta.env.VITE_API_URL}/api/tickets/${ticketId}`,
+      {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${Auth.getToken()}`
         }
       }
-    )
-    const data = await response.json();
+    );
 
     if(!response.ok) {
-      throw new Error('invalid API response, check network tab!');
+      throw new Error('Could not delete ticket');
     }
 
+    const data = await response.json();
     return data;
   } catch (err) {
-    console.error('Error in deleting ticket', err);
+    console.error('Error deleting ticket:', err);
     return Promise.reject('Could not delete ticket');
   }
 };
 
-
-export { createTicket, deleteTicket, retrieveTickets, retrieveTicket, updateTicket};
+export { 
+  createTicket, 
+  deleteTicket, 
+  retrieveTickets, 
+  retrieveTicket, 
+  updateTicket 
+};
