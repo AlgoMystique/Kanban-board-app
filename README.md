@@ -65,7 +65,7 @@ Follow the Render Deployment Guide for deploying the app.
 
 ## Deployment:
 
-The application is deployed and access it here: 
+The application is deployed and access it here: coming soon..
 
 ## Contributing:
 
