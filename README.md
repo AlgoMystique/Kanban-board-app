@@ -1,4 +1,4 @@
-# Kanban Board with JWT Authentication
+# Kanban Board Application with JWT Authentication
 
 This project is a Kanban board application with JWT authentication. Users can securely log in and access the board using JSON Web Tokens (JWT) for authentication.
 
